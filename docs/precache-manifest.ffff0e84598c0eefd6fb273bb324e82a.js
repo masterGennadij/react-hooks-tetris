@@ -1,23 +1,23 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "82382c1117fb01aebcb8e3b88d7306fe",
+    "revision": "75b233ab484f6144a30cf7d46ad5241d",
     "url": "/react-hooks-tetris/index.html"
   },
   {
-    "revision": "6c94cc38d786e9e663cf",
+    "revision": "ef408c5e78478d83db8b",
     "url": "/react-hooks-tetris/static/css/main.03d25919.chunk.css"
   },
   {
-    "revision": "0e5407761a48bba81cce",
-    "url": "/react-hooks-tetris/static/js/2.58a58aea.chunk.js"
+    "revision": "d0719b47c04feb9586d0",
+    "url": "/react-hooks-tetris/static/js/2.0d355332.chunk.js"
   },
   {
     "revision": "c64c486544348f10a6d6c716950bc223",
-    "url": "/react-hooks-tetris/static/js/2.58a58aea.chunk.js.LICENSE.txt"
+    "url": "/react-hooks-tetris/static/js/2.0d355332.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "6c94cc38d786e9e663cf",
-    "url": "/react-hooks-tetris/static/js/main.588dbeac.chunk.js"
+    "revision": "ef408c5e78478d83db8b",
+    "url": "/react-hooks-tetris/static/js/main.1921f516.chunk.js"
   },
   {
     "revision": "35ae17fe5c8e98160e7a",
