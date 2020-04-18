@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import PropTypes from "prop-types";
 
 // Helpers
@@ -13,4 +13,4 @@ const Cell = ({ type }) => {
 
 Cell.propTypes = {};
 
-export default Cell;
+export default memo(Cell);
