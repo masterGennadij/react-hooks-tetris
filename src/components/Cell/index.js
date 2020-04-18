@@ -1,16 +1,16 @@
-import React from 'react'
-import PropTypes from 'prop-types'
+import React from "react";
+import PropTypes from "prop-types";
 
-const Cell = ({type}) => {
-    return (
-        <div>
-            Cell
-        </div>
-    )
-}
+// Helpers
+import { TETROMINOS } from "../../helpers/tetrominos";
 
-Cell.propTypes = {
+// Styles
+import { CellWrapper } from "./styles";
 
-}
+const Cell = ({ type }) => {
+  return <CellWrapper type={type} color={TETROMINOS[type]?.color} />;
+};
 
-export default Cell
+Cell.propTypes = {};
+
+export default Cell;

@@ -4,13 +4,16 @@ import PropTypes from "prop-types";
 // Components
 import Cell from "../Cell";
 
+// Styles
+import { StageWrapper } from "./styles";
+
 const Stage = ({ stage }) => {
   return (
-    <div>
+    <StageWrapper width={stage[0]?.length} height={stage?.length}>
       {stage.map((row) =>
         row.map(([type], index) => <Cell key={index} type={type} />)
       )}
-    </div>
+    </StageWrapper>
   );
 };
 

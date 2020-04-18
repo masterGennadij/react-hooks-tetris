@@ -1,8 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const StartButton = (props) => {
-  return <div>Start game</div>;
+// Styles
+import { StartButtonWrapper } from "./styles";
+
+const StartButton = ({ onClick }) => {
+  return <StartButtonWrapper onClick={onClick}>Start game</StartButtonWrapper>;
 };
 
 StartButton.propTypes = {};
