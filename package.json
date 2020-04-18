@@ -15,6 +15,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "deploy": "yarn build && git add . && git commit -a -m 'latest build' && git push origin master",
     "postbuild": "mv build ./docs",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
