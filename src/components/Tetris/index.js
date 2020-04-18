@@ -28,8 +28,6 @@ const Tetris = () => {
     rowsCleared
   );
 
-  console.log("rerender");
-
   const movePlayer = (direction) => {
     if (!checkCollision(player, stage, { x: direction, y: 0 })) {
       updatePlayerPosition({ x: direction, y: 0 });

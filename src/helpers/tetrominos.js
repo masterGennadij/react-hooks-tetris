@@ -62,6 +62,5 @@ export const getRandomTetromino = () => {
   const tetrominos = "IJLOSTZ";
   const tetrominoKey =
     tetrominos[Math.floor(Math.random() * tetrominos.length)];
-  console.log(tetrominoKey);
   return TETROMINOS[tetrominoKey];
 };

@@ -11,7 +11,6 @@ const useStage = (player, resetPlayer) => {
     const sweepRows = (newStage) =>
       newStage.reduce((acc, row) => {
         if (!row.find((cell) => cell[0] === 0)) {
-          console.log("set rows cleared");
           setRowsCleared((prevState) => prevState + 1);
           acc.unshift(new Array(newStage[0].length).fill([0, "clear"]));
           return acc;
