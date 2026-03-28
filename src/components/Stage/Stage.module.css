@@ -1,0 +1,19 @@
+.stage {
+  --board-width: min(25vw, 300px);
+
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  grid-template-rows: repeat(var(--rows), calc(var(--board-width) / var(--cols)));
+  width: var(--board-width);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  background: #06060e;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .stage {
+    --board-width: min(86vw, 300px);
+  }
+}
