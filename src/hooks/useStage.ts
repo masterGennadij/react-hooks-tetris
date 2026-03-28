@@ -4,7 +4,7 @@ import type { Cell, Stage, Player } from '../types';
 
 type UseStageReturn = [Stage, Dispatch<SetStateAction<Stage>>, number];
 
-const useStage = (player: Player, resetPlayer: () => void): UseStageReturn => {
+export const useStage = (player: Player, resetPlayer: () => void): UseStageReturn => {
   const [stage, setStage] = useState<Stage>(createStage());
   const [rowsCleared, setRowsCleared] = useState(0);
 
@@ -53,4 +53,3 @@ const useStage = (player: Player, resetPlayer: () => void): UseStageReturn => {
   return [stage, setStage, rowsCleared];
 };
 
-export default useStage;

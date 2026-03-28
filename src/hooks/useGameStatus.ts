@@ -11,7 +11,7 @@ type UseGameStatusReturn = [
   Dispatch<SetStateAction<number>>,
 ];
 
-const useGameStatus = (rowsCleared: number): UseGameStatusReturn => {
+export const useGameStatus = (rowsCleared: number): UseGameStatusReturn => {
   const [score, setScore] = useState(0);
   const [rows, setRows] = useState(0);
   const [level, setLevel] = useState(0);
@@ -30,4 +30,3 @@ const useGameStatus = (rowsCleared: number): UseGameStatusReturn => {
   return [score, setScore, rows, setRows, level, setLevel];
 };
 
-export default useGameStatus;

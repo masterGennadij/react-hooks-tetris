@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { ControlsWrapper, ControlGrid, ControlBtn } from './styles';
+import styles from './MobileControls.module.css';
 
 interface MobileControlsProps {
   onMoveLeft: () => void;
@@ -9,7 +9,7 @@ interface MobileControlsProps {
   onRotate: () => void;
 }
 
-const MobileControls = ({
+export const MobileControls = ({
   onMoveLeft,
   onMoveRight,
   onSoftDropStart,
@@ -31,14 +31,15 @@ const MobileControls = ({
   };
 
   return (
-    <ControlsWrapper>
-      <ControlGrid>
+    <div className={styles.controls}>
+      <div className={styles.grid}>
         <span />
-        <ControlBtn onPointerDown={onRotate} aria-label="Rotate">
+        <button className={styles.btn} onPointerDown={onRotate} aria-label="Rotate">
           ↻
-        </ControlBtn>
+        </button>
         <span />
-        <ControlBtn
+        <button
+          className={styles.btn}
           onPointerDown={() => startRepeat(onMoveLeft)}
           onPointerUp={stopRepeat}
           onPointerLeave={stopRepeat}
@@ -46,8 +47,9 @@ const MobileControls = ({
           aria-label="Move left"
         >
           ◀
-        </ControlBtn>
-        <ControlBtn
+        </button>
+        <button
+          className={styles.btn}
           onPointerDown={onSoftDropStart}
           onPointerUp={onSoftDropEnd}
           onPointerLeave={onSoftDropEnd}
@@ -55,8 +57,9 @@ const MobileControls = ({
           aria-label="Soft drop"
         >
           ▼
-        </ControlBtn>
-        <ControlBtn
+        </button>
+        <button
+          className={styles.btn}
           onPointerDown={() => startRepeat(onMoveRight)}
           onPointerUp={stopRepeat}
           onPointerLeave={stopRepeat}
@@ -64,10 +67,8 @@ const MobileControls = ({
           aria-label="Move right"
         >
           ▶
-        </ControlBtn>
-      </ControlGrid>
-    </ControlsWrapper>
+        </button>
+      </div>
+    </div>
   );
 };
-
-export default MobileControls;

@@ -1,12 +1,12 @@
-import { DisplayWrapper } from './styles';
+import styles from './Display.module.css';
 
 interface DisplayProps {
   text: string;
   isGameOver?: boolean;
 }
 
-const Display = ({ isGameOver, text }: DisplayProps) => (
-  <DisplayWrapper $isGameOver={isGameOver}>{text}</DisplayWrapper>
+export const Display = ({ isGameOver, text }: DisplayProps) => (
+  <div className={`${styles.display}${isGameOver ? ` ${styles.gameOver}` : ''}`}>
+    {text}
+  </div>
 );
-
-export default Display;

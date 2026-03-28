@@ -1,16 +1,16 @@
 import { useState, type KeyboardEvent } from 'react';
 import { createStage, checkCollision } from '../../helpers/gameHelpers';
-import usePlayer from '../../hooks/usePlayer';
-import useStage from '../../hooks/useStage';
-import useInterval from '../../hooks/useInterval';
-import useGameStatus from '../../hooks/useGameStatus';
-import StageComponent from '../Stage';
-import StartButton from '../StartButton';
-import Display from '../Display';
-import MobileControls from '../MobileControls';
-import { TetrisContainer, TetrisWrapper } from './style';
+import { usePlayer } from '../../hooks/usePlayer';
+import { useStage } from '../../hooks/useStage';
+import { useInterval } from '../../hooks/useInterval';
+import { useGameStatus } from '../../hooks/useGameStatus';
+import { StageComponent } from '../Stage';
+import { StartButton } from '../StartButton';
+import { Display } from '../Display';
+import { MobileControls } from '../MobileControls';
+import styles from './Tetris.module.css';
 
-const Tetris = () => {
+export const Tetris = () => {
   const [speed, setSpeed] = useState<number | null>(null);
   const [isGameOver, setGameOver] = useState(false);
 
@@ -77,20 +77,21 @@ const Tetris = () => {
   useInterval(drop, speed);
 
   return (
-    <TetrisWrapper
+    <div
+      className={styles.wrapper}
       onKeyUp={keyUpHandler}
       onKeyDown={move}
       tabIndex={0}
       role="region"
       aria-label="Tetris game"
     >
-      <TetrisContainer>
+      <div className={styles.container}>
         <StageComponent stage={stage} />
-        <aside>
+        <aside className={styles.sidebar}>
           {isGameOver ? (
             <Display isGameOver text="Game Over" />
           ) : (
-            <div>
+            <div className={styles.stats}>
               <Display text={`Score: ${score}`} />
               <Display text={`Rows: ${rows}`} />
               <Display text={`Level: ${level}`} />
@@ -98,7 +99,7 @@ const Tetris = () => {
           )}
           <StartButton onClick={startGame} />
         </aside>
-      </TetrisContainer>
+      </div>
       <MobileControls
         onMoveLeft={() => movePlayer(-1)}
         onMoveRight={() => movePlayer(1)}
@@ -106,8 +107,6 @@ const Tetris = () => {
         onSoftDropEnd={softDropEnd}
         onRotate={() => rotatePlayer(stage, 1)}
       />
-    </TetrisWrapper>
+    </div>
   );
 };
-
-export default Tetris;

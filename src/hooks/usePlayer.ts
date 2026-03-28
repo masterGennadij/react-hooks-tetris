@@ -10,7 +10,7 @@ type UsePlayerReturn = [
   (stage: Stage, direction: number) => void,
 ];
 
-const usePlayer = (): UsePlayerReturn => {
+export const usePlayer = (): UsePlayerReturn => {
   const [player, setPlayer] = useState<Player>({
     position: { x: 0, y: 0 },
     tetromino: TETROMINOS[0].shape,
@@ -61,4 +61,3 @@ const usePlayer = (): UsePlayerReturn => {
   return [player, updatePlayerPosition, resetPlayer, rotatePlayer];
 };
 
-export default usePlayer;

@@ -1,24 +1,24 @@
-import styled from 'styled-components';
-
-export const ControlsWrapper = styled.div`
+.controls {
   display: none;
   padding: 8px 0 28px;
   width: 100%;
   justify-content: center;
+}
 
-  @media (pointer: coarse), (max-width: 600px) {
+@media (pointer: coarse), (max-width: 600px) {
+  .controls {
     display: flex;
   }
-`;
+}
 
-export const ControlGrid = styled.div`
+.grid {
   display: grid;
   grid-template-columns: repeat(3, 72px);
   grid-template-rows: repeat(2, 72px);
   gap: 8px;
-`;
+}
 
-export const ControlBtn = styled.button`
+.btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -34,11 +34,11 @@ export const ControlBtn = styled.button`
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   transition: background 0.1s ease, transform 0.1s ease;
+}
 
-  &:active,
-  &:focus {
-    background: rgba(255, 255, 255, 0.18);
-    transform: scale(0.91);
-    outline: none;
-  }
-`;
+.btn:active,
+.btn:focus {
+  background: rgba(255, 255, 255, 0.18);
+  transform: scale(0.91);
+  outline: none;
+}

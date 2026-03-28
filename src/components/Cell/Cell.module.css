@@ -1,0 +1,10 @@
+.empty {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.filled {
+  background: var(--cell-bg);
+  border: 1px solid var(--cell-border);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}

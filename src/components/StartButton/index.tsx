@@ -1,11 +1,11 @@
-import { StartButtonWrapper } from './styles';
+import styles from './StartButton.module.css';
 
 interface StartButtonProps {
   onClick: () => void;
 }
 
-const StartButton = ({ onClick }: StartButtonProps) => (
-  <StartButtonWrapper onClick={onClick}>Start Game</StartButtonWrapper>
+export const StartButton = ({ onClick }: StartButtonProps) => (
+  <button className={styles.button} onClick={onClick}>
+    Start Game
+  </button>
 );
-
-export default StartButton;
