@@ -1,4 +1,3 @@
-import React from 'react';
 import { StartButtonWrapper } from './styles';
 
 interface StartButtonProps {

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { TETROMINOS } from '../../helpers/tetrominos';
 import { CellWrapper } from './styles';
 import type { CellValue } from '../../types';

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState, type KeyboardEvent } from 'react';
 import { createStage, checkCollision } from '../../helpers/gameHelpers';
 import usePlayer from '../../hooks/usePlayer';
 import useStage from '../../hooks/useStage';
@@ -62,11 +62,11 @@ const Tetris = () => {
     setSpeed((prev) => (prev !== null ? normalSpeed() : null));
   };
 
-  const keyUpHandler = (e: React.KeyboardEvent): void => {
+  const keyUpHandler = (e: KeyboardEvent): void => {
     if (!isGameOver && e.key === 'ArrowDown') softDropEnd();
   };
 
-  const move = (e: React.KeyboardEvent): void => {
+  const move = (e: KeyboardEvent): void => {
     if (isGameOver) return;
     if (e.key === 'ArrowLeft') movePlayer(-1);
     else if (e.key === 'ArrowRight') movePlayer(1);
