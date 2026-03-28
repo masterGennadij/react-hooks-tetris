@@ -1,23 +1,23 @@
 import { type CSSProperties } from 'react';
 import { Cell } from '../Cell';
-import type { Stage } from '../../types';
+import type { Board } from '../../types';
 import styles from './Stage.module.css';
 
 interface StageProps {
-  stage: Stage;
+  board: Board;
 }
 
-export const StageComponent = ({ stage }: StageProps) => (
+export const Stage = ({ board }: StageProps) => (
   <div
     className={styles.stage}
     style={
       {
-        '--cols': stage[0]?.length,
-        '--rows': stage.length,
+        '--cols': board[0]?.length,
+        '--rows': board.length,
       } as CSSProperties
     }
   >
-    {stage.map((row) =>
+    {board.map((row) =>
       row.map(([type], index) => <Cell key={index} type={type} />)
     )}
   </div>

@@ -1,39 +1,42 @@
-import { useState, type KeyboardEvent } from 'react';
-import { createStage, checkCollision } from '../../helpers/gameHelpers';
+import { useState, useCallback, type KeyboardEvent } from 'react';
+import { createBoard, checkCollision } from '../../helpers/gameHelpers';
 import { usePlayer } from '../../hooks/usePlayer';
 import { useStage } from '../../hooks/useStage';
 import { useInterval } from '../../hooks/useInterval';
 import { useGameStatus } from '../../hooks/useGameStatus';
-import { StageComponent } from '../Stage';
+import { Stage } from '../Stage';
 import { StartButton } from '../StartButton';
 import { Display } from '../Display';
 import { MobileControls } from '../MobileControls';
 import styles from './Tetris.module.css';
 
+type GameState = 'idle' | 'playing' | 'gameover';
+
 export const Tetris = () => {
+  const [gameState, setGameState] = useState<GameState>('idle');
   const [speed, setSpeed] = useState<number | null>(null);
-  const [isGameOver, setGameOver] = useState(false);
 
   const [player, updatePlayerPosition, resetPlayer, rotatePlayer] = usePlayer();
-  const [stage, setStage, rowsCleared] = useStage(player, resetPlayer);
-  const [score, setScore, rows, setRows, level, setLevel] = useGameStatus(rowsCleared);
+  const [board, setBoard, rowsCleared] = useStage(player, resetPlayer);
+  const { score, setScore, rows, setRows, level, setLevel } = useGameStatus(rowsCleared);
 
-  const normalSpeed = (): number => 1000 / (level + 1) + 200;
+  const normalSpeed = useCallback((): number => 1000 / (level + 1) + 200, [level]);
 
   const movePlayer = (direction: number): void => {
-    if (!checkCollision(player, stage, { x: direction, y: 0 })) {
+    if (gameState !== 'playing') return;
+    if (!checkCollision(player, board, { x: direction, y: 0 })) {
       updatePlayerPosition({ x: direction, y: 0 });
     }
   };
 
   const startGame = (): void => {
-    setStage(createStage());
+    setBoard(createBoard());
     setSpeed(1000);
     resetPlayer();
     setScore(0);
     setLevel(0);
     setRows(0);
-    setGameOver(false);
+    setGameState('playing');
   };
 
   const drop = (): void => {
@@ -41,11 +44,11 @@ export const Tetris = () => {
       setLevel((prev) => prev + 1);
       setSpeed(normalSpeed());
     }
-    if (!checkCollision(player, stage, { x: 0, y: 1 })) {
+    if (!checkCollision(player, board, { x: 0, y: 1 })) {
       updatePlayerPosition({ x: 0, y: 1, isCollided: false });
     } else {
       if (player.position.y < 1) {
-        setGameOver(true);
+        setGameState('gameover');
         setSpeed(null);
       }
       updatePlayerPosition({ x: 0, y: 0, isCollided: true });
@@ -53,25 +56,25 @@ export const Tetris = () => {
   };
 
   const softDropStart = (): void => {
-    if (isGameOver) return;
+    if (gameState !== 'playing') return;
     setSpeed(50);
   };
 
   const softDropEnd = (): void => {
-    if (isGameOver) return;
+    if (gameState !== 'playing') return;
     setSpeed((prev) => (prev !== null ? normalSpeed() : null));
   };
 
   const keyUpHandler = (e: KeyboardEvent): void => {
-    if (!isGameOver && e.key === 'ArrowDown') softDropEnd();
+    if (gameState === 'playing' && e.key === 'ArrowDown') softDropEnd();
   };
 
   const move = (e: KeyboardEvent): void => {
-    if (isGameOver) return;
+    if (gameState !== 'playing') return;
     if (e.key === 'ArrowLeft') movePlayer(-1);
     else if (e.key === 'ArrowRight') movePlayer(1);
     else if (e.key === 'ArrowDown') softDropStart();
-    else if (e.key === 'ArrowUp') rotatePlayer(stage, 1);
+    else if (e.key === 'ArrowUp') rotatePlayer(board, 1);
   };
 
   useInterval(drop, speed);
@@ -86,9 +89,9 @@ export const Tetris = () => {
       aria-label="Tetris game"
     >
       <div className={styles.container}>
-        <StageComponent stage={stage} />
+        <Stage board={board} />
         <aside className={styles.sidebar}>
-          {isGameOver ? (
+          {gameState === 'gameover' ? (
             <Display isGameOver text="Game Over" />
           ) : (
             <div className={styles.stats}>
@@ -105,7 +108,7 @@ export const Tetris = () => {
         onMoveRight={() => movePlayer(1)}
         onSoftDropStart={softDropStart}
         onSoftDropEnd={softDropEnd}
-        onRotate={() => rotatePlayer(stage, 1)}
+        onRotate={() => gameState === 'playing' && rotatePlayer(board, 1)}
       />
     </div>
   );

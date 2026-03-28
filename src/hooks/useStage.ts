@@ -1,38 +1,36 @@
-import { useState, useEffect, Dispatch, SetStateAction } from 'react';
-import { createStage } from '../helpers/gameHelpers';
-import type { Cell, Stage, Player } from '../types';
+import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
+import { createBoard } from '../helpers/gameHelpers';
+import type { Cell, Board, Player } from '../types';
 
-type UseStageReturn = [Stage, Dispatch<SetStateAction<Stage>>, number];
+type UseStageReturn = [Board, Dispatch<SetStateAction<Board>>, number];
 
 export const useStage = (player: Player, resetPlayer: () => void): UseStageReturn => {
-  const [stage, setStage] = useState<Stage>(createStage());
+  const [board, setBoard] = useState<Board>(createBoard());
   const [rowsCleared, setRowsCleared] = useState(0);
 
   useEffect(() => {
     setRowsCleared(0);
 
-    const sweepRows = (newStage: Stage): Stage =>
-      newStage.reduce<Stage>((acc, row) => {
+    const sweepRows = (newBoard: Board): Board =>
+      newBoard.reduce<Board>((acc, row) => {
         if (!row.find((cell) => cell[0] === 0)) {
           setRowsCleared((prev) => prev + 1);
-          acc.unshift(
-            new Array(newStage[0].length).fill([0, 'clear'] as Cell)
-          );
+          acc.unshift(Array.from({ length: newBoard[0].length }, (): Cell => [0, 'clear']));
           return acc;
         }
         acc.push(row);
         return acc;
       }, []);
 
-    const updateStage = (prevStage: Stage): Stage => {
-      const newStage: Stage = prevStage.map((row) =>
+    const updateBoard = (prevBoard: Board): Board => {
+      const newBoard: Board = prevBoard.map((row) =>
         row.map((cell) => (cell[1] === 'clear' ? [0, 'clear'] : cell))
       );
 
       player.tetromino.forEach((row, y) => {
         row.forEach((value, x) => {
           if (value !== 0) {
-            newStage[y + player.position.y][x + player.position.x] = [
+            newBoard[y + player.position.y][x + player.position.x] = [
               value,
               player.isCollided ? 'merged' : 'clear',
             ];
@@ -42,14 +40,13 @@ export const useStage = (player: Player, resetPlayer: () => void): UseStageRetur
 
       if (player.isCollided) {
         resetPlayer();
-        return sweepRows(newStage);
+        return sweepRows(newBoard);
       }
-      return newStage;
+      return newBoard;
     };
 
-    setStage((prev) => updateStage(prev));
+    setBoard((prev) => updateBoard(prev));
   }, [player, resetPlayer]);
 
-  return [stage, setStage, rowsCleared];
+  return [board, setBoard, rowsCleared];
 };
-

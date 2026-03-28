@@ -73,3 +73,20 @@ export const getRandomTetromino = (): TetrominoDefinition => {
   const key = TETROMINO_KEYS[Math.floor(Math.random() * TETROMINO_KEYS.length)];
   return TETROMINOS[key];
 };
+
+type CellStyle = { '--cell-bg': string; '--cell-border': string };
+
+const buildStyle = (color: string): CellStyle => ({
+  '--cell-bg': `rgba(${color}, 0.88)`,
+  '--cell-border': `rgba(${color}, 0.45)`,
+});
+
+export const CELL_STYLES: Record<TetrominoKey, CellStyle> = {
+  I: buildStyle(TETROMINOS.I.color),
+  J: buildStyle(TETROMINOS.J.color),
+  L: buildStyle(TETROMINOS.L.color),
+  O: buildStyle(TETROMINOS.O.color),
+  S: buildStyle(TETROMINOS.S.color),
+  T: buildStyle(TETROMINOS.T.color),
+  Z: buildStyle(TETROMINOS.Z.color),
+};

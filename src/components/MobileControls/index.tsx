@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import styles from './MobileControls.module.css';
 
 interface MobileControlsProps {
@@ -17,6 +17,8 @@ export const MobileControls = ({
   onRotate,
 }: MobileControlsProps) => {
   const repeatRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => () => { clearInterval(repeatRef.current ?? undefined); }, []);
 
   const startRepeat = (action: () => void): void => {
     action();

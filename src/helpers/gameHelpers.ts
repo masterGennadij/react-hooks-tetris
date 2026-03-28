@@ -1,16 +1,16 @@
-import type { Cell, Stage, Player } from '../types';
+import type { Cell, Board, Player } from '../types';
 
 export const STAGE_WIDTH = 12;
 export const STAGE_HEIGHT = 20;
 
-export const createStage = (): Stage =>
-  Array.from(Array(STAGE_HEIGHT), () =>
-    new Array(STAGE_WIDTH).fill([0, 'clear'] as Cell)
+export const createBoard = (): Board =>
+  Array.from({ length: STAGE_HEIGHT }, () =>
+    Array.from({ length: STAGE_WIDTH }, (): Cell => [0, 'clear'])
   );
 
 export const checkCollision = (
   player: Player,
-  stage: Stage,
+  board: Board,
   { x: moveX, y: moveY }: { x: number; y: number }
 ): boolean => {
   for (let y = 0; y < player.tetromino.length; y++) {
@@ -18,7 +18,7 @@ export const checkCollision = (
       if (player.tetromino[y][x] !== 0) {
         const newY = y + player.position.y + moveY;
         const newX = x + player.position.x + moveX;
-        if (!stage[newY] || !stage[newY][newX] || stage[newY][newX][1] !== 'clear') {
+        if (!board[newY] || !board[newY][newX] || board[newY][newX][1] !== 'clear') {
           return true;
         }
       }
