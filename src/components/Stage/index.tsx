@@ -18,7 +18,9 @@ export const Stage = ({ board }: StageProps) => (
     }
   >
     {board.map((row, rowIndex) =>
-      row.map(([type], colIndex) => <Cell key={`${rowIndex}-${colIndex}`} type={type} />)
+      row.map(([type, status], colIndex) => (
+        <Cell key={`${rowIndex}-${colIndex}`} type={type} status={status} />
+      ))
     )}
   </div>
 );

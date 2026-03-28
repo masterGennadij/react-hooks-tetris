@@ -1,21 +1,25 @@
-import { useCallback, useEffect, useRef, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { createBoard, checkCollision } from '../../helpers/gameHelpers';
 import { saveGame, clearSavedGame } from '../../helpers/storage';
+import { sounds } from '../../helpers/audio';
 import { usePlayer } from '../../hooks/usePlayer';
 import { useStage } from '../../hooks/useStage';
 import { useInterval } from '../../hooks/useInterval';
 import { useGameReducer } from '../../hooks/useGameReducer';
+import { useHardDrop } from '../../hooks/useHardDrop';
+import { useKeyboard } from '../../hooks/useKeyboard';
 import { Stage } from '../Stage';
 import { StartButton } from '../StartButton';
 import { Display } from '../Display';
 import { MobileControls } from '../MobileControls';
+import { NextPiece } from '../NextPiece';
 import styles from './Tetris.module.css';
 
 export const Tetris = () => {
   const [state, dispatch] = useGameReducer();
-  const { phase, speed, savedGame, score, rows, level } = state;
+  const { phase, speed, savedGame, score, rows, level, muted } = state;
 
-  const { player, updatePlayerPosition, resetPlayer, rotatePlayer, restorePlayer, moveHorizontal } =
+  const { player, nextPiece, updatePlayerPosition, resetPlayer, rotatePlayer, restorePlayer, moveHorizontal } =
     usePlayer();
   const [board, setBoard, rowsCleared] = useStage(player, resetPlayer);
 
@@ -23,9 +27,18 @@ export const Tetris = () => {
   const dispatchRef = useRef(dispatch);
   useEffect(() => { dispatchRef.current = dispatch; });
 
+  const prevLevelRef = useRef(level);
   useEffect(() => {
-    if (rowsCleared > 0) dispatchRef.current({ type: 'ROWS_CLEARED', count: rowsCleared });
-  }, [rowsCleared]);
+    if (rowsCleared > 0) {
+      dispatchRef.current({ type: 'ROWS_CLEARED', count: rowsCleared });
+      if (!muted) sounds.lineClear();
+    }
+  }, [rowsCleared]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (level > prevLevelRef.current && !muted) sounds.levelUp();
+    prevLevelRef.current = level;
+  }, [level, muted]);
 
   // Persist latest values via ref so beforeunload never captures stale state
   const stateRef = useRef({ board, player, score, rows, level, phase });
@@ -47,8 +60,11 @@ export const Tetris = () => {
 
   // Clear save when game ends
   useEffect(() => {
-    if (phase === 'gameover') clearSavedGame();
-  }, [phase]);
+    if (phase === 'gameover') {
+      clearSavedGame();
+      if (!muted) sounds.gameOver();
+    }
+  }, [phase]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Auto-pause when tab is hidden or window loses focus
   useEffect(() => {
@@ -93,28 +109,45 @@ export const Tetris = () => {
     }
   }, [player, board, updatePlayerPosition, dispatch]);
 
-  const softDropStart = useCallback((): void => { dispatch({ type: 'SOFT_DROP' }); }, [dispatch]);
+  const softDropStart = useCallback((): void => {
+    dispatch({ type: 'SOFT_DROP' });
+    if (!muted) sounds.softDrop();
+  }, [dispatch, muted]);
+
   const softDropEnd = useCallback((): void => { dispatch({ type: 'SOFT_DROP_CANCEL' }); }, [dispatch]);
 
   const togglePause = useCallback((): void => {
     dispatch({ type: phase === 'paused' ? 'RESUME' : 'PAUSE' });
   }, [phase, dispatch]);
 
-  const keyUpHandler = (e: KeyboardEvent): void => {
-    if (phase === 'playing' && e.key === 'ArrowDown') softDropEnd();
-  };
-
-  const move = (e: KeyboardEvent): void => {
-    if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
-      if (phase === 'playing' || phase === 'paused') togglePause();
-      return;
-    }
+  const hardDrop = useHardDrop(player, board, updatePlayerPosition);
+  const hardDropWithSound = useCallback((): void => {
     if (phase !== 'playing') return;
-    if (e.key === 'ArrowLeft') moveHorizontal(board, -1);
-    else if (e.key === 'ArrowRight') moveHorizontal(board, 1);
-    else if (e.key === 'ArrowDown') softDropStart();
-    else if (e.key === 'ArrowUp') rotatePlayer(board, 1);
-  };
+    hardDrop();
+    if (!muted) sounds.hardDrop();
+  }, [phase, hardDrop, muted]);
+
+  const rotatePiece = useCallback((): void => {
+    if (phase !== 'playing') return;
+    rotatePlayer(board, 1);
+    if (!muted) sounds.rotate();
+  }, [phase, board, rotatePlayer, muted]);
+
+  const movePiece = useCallback((direction: number): void => {
+    moveHorizontal(board, direction);
+    if (!muted) sounds.move();
+  }, [board, moveHorizontal, muted]);
+
+  const { onKeyDown, onKeyUp } = useKeyboard({
+    phase,
+    moveLeft: () => movePiece(-1),
+    moveRight: () => movePiece(1),
+    softDropStart,
+    softDropEnd,
+    hardDrop: hardDropWithSound,
+    rotate: rotatePiece,
+    togglePause,
+  });
 
   useInterval(drop, phase === 'playing' ? speed : null);
 
@@ -123,8 +156,8 @@ export const Tetris = () => {
   return (
     <div
       className={styles.wrapper}
-      onKeyUp={keyUpHandler}
-      onKeyDown={move}
+      onKeyUp={onKeyUp}
+      onKeyDown={onKeyDown}
       tabIndex={0}
       role="region"
       aria-label="Tetris game"
@@ -146,6 +179,10 @@ export const Tetris = () => {
             </div>
           )}
 
+          {phase === 'playing' || phase === 'paused' ? (
+            <NextPiece next={nextPiece} />
+          ) : null}
+
           {hasSavedGame ? (
             <>
               <StartButton onClick={continueGame}>Continue</StartButton>
@@ -154,14 +191,23 @@ export const Tetris = () => {
           ) : (
             <StartButton onClick={startGame} />
           )}
+
+          <button
+            className={styles.secondaryBtn}
+            onClick={() => dispatch({ type: 'TOGGLE_MUTE' })}
+            aria-label={muted ? 'Unmute' : 'Mute'}
+          >
+            {muted ? '🔇 Muted' : '🔊 Sound'}
+          </button>
         </aside>
       </div>
       <MobileControls
-        onMoveLeft={() => moveHorizontal(board, -1)}
-        onMoveRight={() => moveHorizontal(board, 1)}
+        onMoveLeft={() => movePiece(-1)}
+        onMoveRight={() => movePiece(1)}
         onSoftDropStart={softDropStart}
         onSoftDropEnd={softDropEnd}
-        onRotate={() => phase === 'playing' && rotatePlayer(board, 1)}
+        onRotate={rotatePiece}
+        onHardDrop={hardDropWithSound}
         onPause={togglePause}
       />
     </div>

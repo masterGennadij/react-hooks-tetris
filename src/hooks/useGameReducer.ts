@@ -10,6 +10,7 @@ export interface GameState {
   score: number;
   rows: number;
   level: number;
+  muted: boolean;
 }
 
 export type GameAction =
@@ -21,11 +22,20 @@ export type GameAction =
   | { type: 'SOFT_DROP' }
   | { type: 'SOFT_DROP_CANCEL' }
   | { type: 'ROWS_CLEARED'; count: number }
-  | { type: 'DISMISS_SAVE' };
+  | { type: 'DISMISS_SAVE' }
+  | { type: 'TOGGLE_MUTE' };
 
 const LINE_POINTS = [40, 100, 300, 1200] as const;
 
 export const normalSpeed = (level: number): number => 1000 / (level + 1) + 200;
+
+const loadMuted = (): boolean => {
+  try { return localStorage.getItem('tetris-muted') === 'true'; } catch { return false; }
+};
+
+const saveMuted = (muted: boolean): void => {
+  try { localStorage.setItem('tetris-muted', String(muted)); } catch { /* ignore */ }
+};
 
 const initialState: GameState = {
   phase: 'idle',
@@ -34,16 +44,17 @@ const initialState: GameState = {
   score: 0,
   rows: 0,
   level: 0,
+  muted: loadMuted(),
 };
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'START':
-      return { phase: 'playing', speed: 1000, savedGame: null, score: 0, rows: 0, level: 0 };
+      return { ...state, phase: 'playing', speed: 1000, savedGame: null, score: 0, rows: 0, level: 0 };
 
     case 'CONTINUE': {
       const { score, rows, level } = action.saved;
-      return { phase: 'playing', speed: normalSpeed(level), savedGame: null, score, rows, level };
+      return { ...state, phase: 'playing', speed: normalSpeed(level), savedGame: null, score, rows, level };
     }
 
     case 'PAUSE':
@@ -82,6 +93,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case 'DISMISS_SAVE':
       return { ...state, savedGame: null };
+
+    case 'TOGGLE_MUTE': {
+      const muted = !state.muted;
+      saveMuted(muted);
+      return { ...state, muted };
+    }
 
     default:
       return state;
