@@ -17,8 +17,8 @@ export const Stage = ({ board }: StageProps) => (
       } as CSSProperties
     }
   >
-    {board.map((row) =>
-      row.map(([type], index) => <Cell key={index} type={type} />)
+    {board.map((row, rowIndex) =>
+      row.map(([type], colIndex) => <Cell key={`${rowIndex}-${colIndex}`} type={type} />)
     )}
   </div>
 );

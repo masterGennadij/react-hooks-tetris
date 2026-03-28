@@ -39,13 +39,15 @@ export const useStage = (player: Player, resetPlayer: () => void): UseStageRetur
       });
 
       if (player.isCollided) {
-        resetPlayer();
         return sweepRows(newBoard);
       }
       return newBoard;
     };
 
     setBoard((prev) => updateBoard(prev));
+    if (player.isCollided) {
+      resetPlayer();
+    }
   }, [player, resetPlayer]);
 
   return [board, setBoard, rowsCleared];

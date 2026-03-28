@@ -10,7 +10,7 @@ import { Display } from '../Display';
 import { MobileControls } from '../MobileControls';
 import styles from './Tetris.module.css';
 
-type GameState = 'idle' | 'playing' | 'gameover';
+type GameState = 'idle' | 'playing' | 'paused' | 'gameover';
 
 export const Tetris = () => {
   const [gameState, setGameState] = useState<GameState>('idle');
@@ -65,11 +65,24 @@ export const Tetris = () => {
     setSpeed((prev) => (prev !== null ? normalSpeed() : null));
   };
 
+  const togglePause = (): void => {
+    if (gameState === 'playing') {
+      setGameState('paused');
+      setSpeed(normalSpeed());
+    } else if (gameState === 'paused') {
+      setGameState('playing');
+    }
+  };
+
   const keyUpHandler = (e: KeyboardEvent): void => {
     if (gameState === 'playing' && e.key === 'ArrowDown') softDropEnd();
   };
 
   const move = (e: KeyboardEvent): void => {
+    if (e.key === 'p' || e.key === 'P' || e.key === 'Escape') {
+      if (gameState === 'playing' || gameState === 'paused') togglePause();
+      return;
+    }
     if (gameState !== 'playing') return;
     if (e.key === 'ArrowLeft') movePlayer(-1);
     else if (e.key === 'ArrowRight') movePlayer(1);
@@ -77,7 +90,7 @@ export const Tetris = () => {
     else if (e.key === 'ArrowUp') rotatePlayer(board, 1);
   };
 
-  useInterval(drop, speed);
+  useInterval(drop, gameState === 'playing' ? speed : null);
 
   return (
     <div
@@ -93,6 +106,8 @@ export const Tetris = () => {
         <aside className={styles.sidebar}>
           {gameState === 'gameover' ? (
             <Display isGameOver text="Game Over" />
+          ) : gameState === 'paused' ? (
+            <Display text="Paused" />
           ) : (
             <div className={styles.stats}>
               <Display text={`Score: ${score}`} />
@@ -109,6 +124,7 @@ export const Tetris = () => {
         onSoftDropStart={softDropStart}
         onSoftDropEnd={softDropEnd}
         onRotate={() => gameState === 'playing' && rotatePlayer(board, 1)}
+        onPause={togglePause}
       />
     </div>
   );
