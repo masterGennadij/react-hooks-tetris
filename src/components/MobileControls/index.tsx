@@ -7,6 +7,7 @@ interface MobileControlsProps {
   onSoftDropStart: () => void;
   onSoftDropEnd: () => void;
   onRotate: () => void;
+  onPause: () => void;
 }
 
 export const MobileControls = ({
@@ -15,6 +16,7 @@ export const MobileControls = ({
   onSoftDropStart,
   onSoftDropEnd,
   onRotate,
+  onPause,
 }: MobileControlsProps) => {
   const repeatRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -35,7 +37,9 @@ export const MobileControls = ({
   return (
     <div className={styles.controls}>
       <div className={styles.grid}>
-        <span />
+        <button className={styles.btn} onPointerDown={onPause} aria-label="Pause">
+          ⏸
+        </button>
         <button className={styles.btn} onPointerDown={onRotate} aria-label="Rotate">
           ↻
         </button>

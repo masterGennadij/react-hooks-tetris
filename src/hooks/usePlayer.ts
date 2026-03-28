@@ -47,7 +47,7 @@ export const usePlayer = (): UsePlayerReturn => {
     while (checkCollision(cloned, board, { x: 0, y: 0 })) {
       cloned.position.x += offset;
       offset = -(offset + (offset > 0 ? 1 : -1));
-      if (offset > cloned.tetromino[0].length) {
+      if (Math.abs(offset) > cloned.tetromino[0].length) {
         cloned.position.x = origX;
         return;
       }
