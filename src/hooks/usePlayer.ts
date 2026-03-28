@@ -8,6 +8,7 @@ type UsePlayerReturn = [
   (args: UpdatePositionArgs) => void,
   () => void,
   (board: Board, direction: number) => void,
+  (saved: Player) => void,
 ];
 
 const rotate = (tetromino: CellValue[][], direction: number): CellValue[][] => {
@@ -55,5 +56,9 @@ export const usePlayer = (): UsePlayerReturn => {
     setPlayer(cloned);
   }, [player]);
 
-  return [player, updatePlayerPosition, resetPlayer, rotatePlayer];
+  const restorePlayer = useCallback((saved: Player): void => {
+    setPlayer(saved);
+  }, []);
+
+  return [player, updatePlayerPosition, resetPlayer, rotatePlayer, restorePlayer];
 };
