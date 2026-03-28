@@ -3,13 +3,16 @@ import { getRandomTetromino, TETROMINOS } from '../helpers/tetrominos';
 import { STAGE_WIDTH, checkCollision } from '../helpers/gameHelpers';
 import type { Player, UpdatePositionArgs, Board, CellValue } from '../types';
 
-type UsePlayerReturn = [
-  Player,
-  (args: UpdatePositionArgs) => void,
-  () => void,
-  (board: Board, direction: number) => void,
-  (saved: Player) => void,
-];
+export interface UsePlayerReturn {
+  player: Player;
+  updatePlayerPosition: (args: UpdatePositionArgs) => void;
+  resetPlayer: () => void;
+  rotatePlayer: (board: Board, direction: number) => void;
+  restorePlayer: (saved: Player) => void;
+  /** Atomic left/right move: collision check runs inside the state updater so
+   *  rapid-fire calls (key-repeat, mobile interval) can never skip a wall check. */
+  moveHorizontal: (board: Board, direction: number) => void;
+}
 
 const rotate = (tetromino: CellValue[][], direction: number): CellValue[][] => {
   const rotated = tetromino.map((_, index) => tetromino.map((row) => row[index]));
@@ -60,5 +63,17 @@ export const usePlayer = (): UsePlayerReturn => {
     setPlayer(saved);
   }, []);
 
-  return [player, updatePlayerPosition, resetPlayer, rotatePlayer, restorePlayer];
+  // The board argument is captured from the caller's closure. For horizontal
+  // movement the board does not change between rapid ticks, so a slightly stale
+  // board is safe. What matters is that `prev` is always the latest player
+  // state — which functional updates guarantee — so back-to-back calls chain
+  // the check correctly and can never skip a wall.
+  const moveHorizontal = useCallback((board: Board, direction: number): void => {
+    setPlayer((prev) => {
+      if (checkCollision(prev, board, { x: direction, y: 0 })) return prev;
+      return { ...prev, position: { x: prev.position.x + direction, y: prev.position.y } };
+    });
+  }, []);
+
+  return { player, updatePlayerPosition, resetPlayer, rotatePlayer, restorePlayer, moveHorizontal };
 };
