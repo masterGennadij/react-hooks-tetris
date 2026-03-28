@@ -18,7 +18,7 @@ export const checkCollision = (
       if (player.tetromino[y][x] !== 0) {
         const newY = y + player.position.y + moveY;
         const newX = x + player.position.x + moveX;
-        if (!board[newY] || !board[newY][newX] || board[newY][newX][1] !== 'clear') {
+        if (!board[newY] || !board[newY][newX] || board[newY][newX][1] === 'merged') {
           return true;
         }
       }

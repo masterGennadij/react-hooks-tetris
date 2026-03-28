@@ -13,7 +13,7 @@ export const useStage = (player: Player, resetPlayer: () => void): UseStageRetur
 
     const sweepRows = (newBoard: Board): Board =>
       newBoard.reduce<Board>((acc, row) => {
-        if (!row.find((cell) => cell[0] === 0)) {
+        if (row.every((cell) => cell[1] === 'merged')) {
           setRowsCleared((prev) => prev + 1);
           acc.unshift(Array.from({ length: newBoard[0].length }, (): Cell => [0, 'clear']));
           return acc;
