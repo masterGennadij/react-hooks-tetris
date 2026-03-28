@@ -1,5 +1,6 @@
-import { useState, useCallback, type KeyboardEvent } from 'react';
+import { useState, useCallback, useEffect, useRef, type KeyboardEvent } from 'react';
 import { createBoard, checkCollision } from '../../helpers/gameHelpers';
+import { loadSavedGame, saveGame, clearSavedGame, type SavedGame } from '../../helpers/storage';
 import { usePlayer } from '../../hooks/usePlayer';
 import { useStage } from '../../hooks/useStage';
 import { useInterval } from '../../hooks/useInterval';
@@ -15,12 +16,41 @@ type GameState = 'idle' | 'playing' | 'paused' | 'gameover';
 export const Tetris = () => {
   const [gameState, setGameState] = useState<GameState>('idle');
   const [speed, setSpeed] = useState<number | null>(null);
+  const [savedGame, setSavedGame] = useState<SavedGame | null>(() => loadSavedGame());
 
-  const [player, updatePlayerPosition, resetPlayer, rotatePlayer] = usePlayer();
+  const [player, updatePlayerPosition, resetPlayer, rotatePlayer, restorePlayer] = usePlayer();
   const [board, setBoard, rowsCleared] = useStage(player, resetPlayer);
   const { score, setScore, rows, setRows, level, setLevel } = useGameStatus(rowsCleared);
 
   const normalSpeed = useCallback((): number => 1000 / (level + 1) + 200, [level]);
+
+  // Show saved board as preview while the resume prompt is visible
+  useEffect(() => {
+    if (savedGame) setBoard(savedGame.board);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Persist latest values in a ref so the beforeunload handler never captures stale state
+  const stateRef = useRef({ board, player, score, rows, level, gameState });
+  useEffect(() => {
+    stateRef.current = { board, player, score, rows, level, gameState };
+  });
+
+  // Save on page close / refresh
+  useEffect(() => {
+    const handle = () => {
+      const { board, player, score, rows, level, gameState } = stateRef.current;
+      if (gameState === 'playing' || gameState === 'paused') {
+        saveGame({ board, player, score, rows, level });
+      }
+    };
+    window.addEventListener('beforeunload', handle);
+    return () => window.removeEventListener('beforeunload', handle);
+  }, []);
+
+  // Clear save when the game ends naturally
+  useEffect(() => {
+    if (gameState === 'gameover') clearSavedGame();
+  }, [gameState]);
 
   const movePlayer = (direction: number): void => {
     if (gameState !== 'playing') return;
@@ -30,6 +60,8 @@ export const Tetris = () => {
   };
 
   const startGame = (): void => {
+    clearSavedGame();
+    setSavedGame(null);
     setBoard(createBoard());
     setSpeed(1000);
     resetPlayer();
@@ -37,6 +69,18 @@ export const Tetris = () => {
     setLevel(0);
     setRows(0);
     setGameState('playing');
+  };
+
+  const continueGame = (): void => {
+    if (!savedGame) return;
+    setScore(savedGame.score);
+    setRows(savedGame.rows);
+    setLevel(savedGame.level);
+    setSpeed(1000 / (savedGame.level + 1) + 200);
+    setBoard(savedGame.board);
+    restorePlayer(savedGame.player);
+    setGameState('paused');
+    setSavedGame(null);
   };
 
   const drop = (): void => {
@@ -92,6 +136,8 @@ export const Tetris = () => {
 
   useInterval(drop, gameState === 'playing' ? speed : null);
 
+  const hasSavedGame = savedGame !== null && gameState === 'idle';
+
   return (
     <div
       className={styles.wrapper}
@@ -108,6 +154,8 @@ export const Tetris = () => {
             <Display isGameOver text="Game Over" />
           ) : gameState === 'paused' ? (
             <Display text="Paused" />
+          ) : hasSavedGame ? (
+            <Display text={`Saved: ${savedGame.score} pts  Lv ${savedGame.level}`} />
           ) : (
             <div className={styles.stats}>
               <Display text={`Score: ${score}`} />
@@ -115,7 +163,15 @@ export const Tetris = () => {
               <Display text={`Level: ${level}`} />
             </div>
           )}
-          <StartButton onClick={startGame} />
+
+          {hasSavedGame ? (
+            <>
+              <StartButton onClick={continueGame}>Continue</StartButton>
+              <button className={styles.secondaryBtn} onClick={startGame}>New Game</button>
+            </>
+          ) : (
+            <StartButton onClick={startGame} />
+          )}
         </aside>
       </div>
       <MobileControls

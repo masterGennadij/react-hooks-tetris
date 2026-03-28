@@ -30,6 +30,34 @@
   gap: 10px;
 }
 
+.secondaryBtn {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  font-family: 'Pixel', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+  white-space: nowrap;
+}
+
+.secondaryBtn:hover {
+  background: rgba(255, 255, 255, 0.11);
+}
+
+.secondaryBtn:active {
+  transform: scale(0.97);
+}
+
+.secondaryBtn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.4);
+  outline-offset: 3px;
+}
+
 @media (max-width: 600px) {
   .container {
     flex-direction: column;
