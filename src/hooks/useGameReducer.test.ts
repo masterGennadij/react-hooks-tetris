@@ -8,6 +8,7 @@ const base: GameState = {
   score: 0,
   rows: 0,
   level: 0,
+  muted: false,
 };
 
 const playing: GameState = { ...base, phase: 'playing', speed: 1000 };

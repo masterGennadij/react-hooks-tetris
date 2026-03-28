@@ -1,6 +1,6 @@
 import type { Cell, Board, Player } from '../types';
 
-export const STAGE_WIDTH = 12;
+export const STAGE_WIDTH = 10;
 export const STAGE_HEIGHT = 20;
 
 export const createBoard = (): Board =>

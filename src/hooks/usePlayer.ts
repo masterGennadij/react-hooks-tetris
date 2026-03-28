@@ -1,10 +1,12 @@
-import { useState, useCallback } from 'react';
-import { getRandomTetromino, TETROMINOS } from '../helpers/tetrominos';
+import { useState, useCallback, useRef } from 'react';
+import { TETROMINOS, type TetrominoDefinition } from '../helpers/tetrominos';
+import { nextFromBag } from '../helpers/bag';
 import { STAGE_WIDTH, checkCollision } from '../helpers/gameHelpers';
-import type { Player, UpdatePositionArgs, Board, CellValue } from '../types';
+import type { TetrominoKey, Player, UpdatePositionArgs, Board, CellValue } from '../types';
 
 export interface UsePlayerReturn {
   player: Player;
+  nextPiece: TetrominoDefinition;
   updatePlayerPosition: (args: UpdatePositionArgs) => void;
   resetPlayer: () => void;
   rotatePlayer: (board: Board, direction: number) => void;
@@ -20,6 +22,18 @@ const rotate = (tetromino: CellValue[][], direction: number): CellValue[][] => {
 };
 
 export const usePlayer = (): UsePlayerReturn => {
+  // 7-bag state held in refs so resetPlayer callback never goes stale
+  const bagRef = useRef<TetrominoKey[]>([]);
+  const nextPieceRef = useRef<TetrominoDefinition>(TETROMINOS['I']);
+
+  // Draw the first "next" piece lazily on mount
+  const [nextPiece, setNextPiece] = useState<TetrominoDefinition>(() => {
+    const [piece, bag] = nextFromBag([]);
+    bagRef.current = bag;
+    nextPieceRef.current = piece;
+    return piece;
+  });
+
   const [player, setPlayer] = useState<Player>({
     position: { x: 0, y: 0 },
     tetromino: TETROMINOS[0].shape,
@@ -35,11 +49,18 @@ export const usePlayer = (): UsePlayerReturn => {
   }, []);
 
   const resetPlayer = useCallback((): void => {
+    // Current nextPiece becomes the active piece; draw a new nextPiece from the bag
+    const [newNext, newBag] = nextFromBag(bagRef.current);
+    bagRef.current = newBag;
+    const activeTetromino = nextPieceRef.current;
+    nextPieceRef.current = newNext;
+
     setPlayer({
       position: { x: STAGE_WIDTH / 2 - 2, y: 0 },
-      tetromino: getRandomTetromino().shape,
+      tetromino: activeTetromino.shape,
       isCollided: false,
     });
+    setNextPiece(newNext);
   }, []);
 
   const rotatePlayer = useCallback((board: Board, direction: number): void => {
@@ -75,5 +96,5 @@ export const usePlayer = (): UsePlayerReturn => {
     });
   }, []);
 
-  return { player, updatePlayerPosition, resetPlayer, rotatePlayer, restorePlayer, moveHorizontal };
+  return { player, nextPiece, updatePlayerPosition, resetPlayer, rotatePlayer, restorePlayer, moveHorizontal };
 };
