@@ -34,10 +34,16 @@ export const usePlayer = (): UsePlayerReturn => {
     return piece;
   });
 
-  const [player, setPlayer] = useState<Player>({
-    position: { x: 0, y: 0 },
-    tetromino: TETROMINOS[0].shape,
-    isCollided: false,
+  const [player, setPlayer] = useState<Player>(() => {
+    // Draw the first active piece from the bag initialised above so the player
+    // never holds the all-zero placeholder shape.
+    const [activePiece, newBag] = nextFromBag(bagRef.current);
+    bagRef.current = newBag;
+    return {
+      position: { x: STAGE_WIDTH / 2 - 2, y: 0 },
+      tetromino: activePiece.shape,
+      isCollided: false,
+    };
   });
 
   const updatePlayerPosition = useCallback(({ x, y, isCollided = false }: UpdatePositionArgs): void => {
