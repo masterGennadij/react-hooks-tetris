@@ -23,3 +23,16 @@
   grid-template-rows: repeat(var(--size), 18px);
   gap: 2px;
 }
+
+@media (max-width: 600px) {
+  .wrapper {
+    padding: 6px 7px;
+    border-radius: 6px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(var(--size), 13px);
+    grid-template-rows: repeat(var(--size), 13px);
+    gap: 1px;
+  }
+}

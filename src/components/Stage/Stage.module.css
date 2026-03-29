@@ -14,6 +14,19 @@
 
 @media (max-width: 600px) {
   .stage {
-    --board-width: min(86vw, 300px);
+    /* Size the board so it fits the screen HEIGHT (leaves room for controls +
+       padding) while also not exceeding the width available beside the sidebar.
+       Formula: board is 10 cols × 20 rows of square cells.
+         height-fit  = (viewport_h - controls_h - top_padding) / 20 * 10
+         width-fit   = viewport_w - sidebar(90) - gap(8) - padding(16)
+       Take the minimum so it fits both axes. */
+    --board-width: min(
+      calc((100vh - 208px) / 2),
+      calc(100vw - 114px)
+    );
+    --board-width: min(
+      calc((100svh - 208px) / 2),
+      calc(100vw - 114px)
+    );
   }
 }
