@@ -1,5 +1,5 @@
 import { useState, useEffect, type Dispatch, type SetStateAction } from 'react';
-import { createBoard, checkCollision } from '../helpers/gameHelpers';
+import { createBoard, checkCollision, STAGE_HEIGHT } from '../helpers/gameHelpers';
 import type { Cell, Board, Player } from '../types';
 
 type UseStageReturn = [Board, Dispatch<SetStateAction<Board>>, number];
@@ -28,9 +28,14 @@ export const useStage = (player: Player, resetPlayer: () => void): UseStageRetur
         row.map((cell) => (cell[1] === 'merged' ? cell : [0, 'clear']))
       );
 
-      // Compute ghost drop distance on the clean board (only merged cells present)
+      // Compute ghost drop distance on the clean board (only merged cells present).
+      // Cap at STAGE_HEIGHT to guard against empty tetrominoes (all-zero shape)
+      // where checkCollision never fires, which would otherwise loop forever.
       let ghostDrop = 0;
-      while (!checkCollision(player, newBoard, { x: 0, y: ghostDrop + 1 })) ghostDrop++;
+      while (
+        ghostDrop < STAGE_HEIGHT &&
+        !checkCollision(player, newBoard, { x: 0, y: ghostDrop + 1 })
+      ) ghostDrop++;
 
       // Paint ghost cells (only on empty cells — merged cells take priority)
       player.tetromino.forEach((row, y) => {
